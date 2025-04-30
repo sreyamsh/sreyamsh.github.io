@@ -1,1 +1,636 @@
-Hello World
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>git_aliases.md</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+
+    <style>
+      /* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+      /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+      body {
+        font-family: var(
+          --vscode-markdown-font-family,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe WPC",
+          "Segoe UI",
+          "Ubuntu",
+          "Droid Sans",
+          sans-serif
+        );
+        font-size: var(--vscode-markdown-font-size, 18px);
+        padding: 0 26px;
+        line-height: var(--vscode-markdown-line-height, 22px);
+        word-wrap: break-word;
+        background-color: #181a1b; /* dark background */
+        color: #e0e0e0; /* light text */
+        max-width: 1280px;
+        margin-inline: auto;
+      }
+
+      #code-csp-warning {
+        position: fixed;
+        top: 0;
+        right: 0;
+        color: white;
+        margin: 16px;
+        text-align: center;
+        font-size: 16px;
+        font-family: sans-serif;
+        background-color: #444444;
+        cursor: pointer;
+        padding: 6px;
+        box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
+      }
+
+      #code-csp-warning:hover {
+        text-decoration: none;
+        background-color: #007acc;
+        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+      }
+
+      body.scrollBeyondLastLine {
+        margin-bottom: calc(100vh - 22px);
+      }
+
+      body.showEditorSelection .code-line {
+        position: relative;
+      }
+
+      body.showEditorSelection .code-active-line:before,
+      body.showEditorSelection .code-line:hover:before {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: -12px;
+        height: 100%;
+      }
+
+      body.showEditorSelection li.code-active-line:before,
+      body.showEditorSelection li.code-line:hover:before {
+        left: -30px;
+      }
+
+      .vscode-light.showEditorSelection .code-active-line:before {
+        border-left: 3px solid rgba(0, 0, 0, 0.15);
+      }
+
+      .vscode-light.showEditorSelection .code-line:hover:before {
+        border-left: 3px solid rgba(0, 0, 0, 0.4);
+      }
+
+      .vscode-light.showEditorSelection .code-line .code-line:hover:before {
+        border-left: none;
+      }
+
+      .vscode-dark.showEditorSelection .code-active-line:before {
+        border-left: 3px solid rgba(255, 255, 255, 0.4);
+      }
+
+      .vscode-dark.showEditorSelection .code-line:hover:before {
+        border-left: 3px solid rgba(255, 255, 255, 0.6);
+      }
+
+      .vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+        border-left: none;
+      }
+
+      .vscode-high-contrast.showEditorSelection .code-active-line:before {
+        border-left: 3px solid rgba(255, 160, 0, 0.7);
+      }
+
+      .vscode-high-contrast.showEditorSelection .code-line:hover:before {
+        border-left: 3px solid rgba(255, 160, 0, 1);
+      }
+
+      .vscode-high-contrast.showEditorSelection
+        .code-line
+        .code-line:hover:before {
+        border-left: none;
+      }
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      a {
+        text-decoration: none;
+        color: #8ab4f8;
+      }
+
+      a:hover {
+        text-decoration: underline;
+        color: #a3d3ff;
+      }
+
+      a:focus,
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: 1px solid -webkit-focus-ring-color;
+        outline-offset: -1px;
+      }
+
+      hr {
+        border: 0;
+        height: 2px;
+        border-bottom: 2px solid #333;
+      }
+
+      h1 {
+        padding-bottom: 0.3em;
+        line-height: 1.2;
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+        color: #f3f3f3;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-weight: normal;
+        color: #f3f3f3;
+      }
+
+      table {
+        border-collapse: collapse;
+      }
+
+      table > thead > tr > th {
+        text-align: left;
+        border-bottom: 1px solid;
+      }
+
+      table > thead > tr > th,
+      table > thead > tr > td,
+      table > tbody > tr > th,
+      table > tbody > tr > td {
+        padding: 5px 10px;
+        border-color: #333;
+      }
+
+      table > tbody > tr + tr > td {
+        border-top: 1px solid;
+      }
+
+      blockquote {
+        margin: 0 7px 0 5px;
+        padding: 0 16px 0 10px;
+        border-left-width: 5px;
+        border-left-style: solid;
+        background: rgba(127, 127, 127, 0.15);
+        border-color: #3a3f4b;
+        color: #b0b0b0;
+      }
+
+      code {
+        font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New",
+          monospace, "Droid Sans Fallback";
+        font-size: 16px;
+        line-height: 19px;
+        background: #23272e;
+        color: #e0e0e0;
+        border-radius: 2px;
+        padding: 2px 4px;
+      }
+
+      h2 > code {
+        font-size: inherit;
+      }
+
+      body.wordWrap pre {
+        white-space: pre-wrap;
+      }
+
+      pre:not(.hljs),
+      pre.hljs code > div {
+        padding: 16px;
+        border-radius: 3px;
+        overflow: auto;
+        background-color: #23272e; /* darker code block */
+        border: 1px solid #444c56;
+        color: #e0e0e0;
+      }
+
+      pre > code {
+        display: block;
+      }
+
+      pre code {
+        color: var(--vscode-editor-foreground);
+        tab-size: 4;
+      }
+
+      /** Theming */
+
+      .vscode-light pre {
+        background-color: rgba(220, 220, 220, 0.4);
+      }
+
+      .vscode-dark pre {
+        background-color: rgba(10, 10, 10, 0.4);
+      }
+
+      .vscode-high-contrast pre {
+        background-color: rgb(0, 0, 0);
+      }
+
+      .vscode-high-contrast h1 {
+        border-color: rgb(0, 0, 0);
+      }
+
+      .vscode-light table > thead > tr > th {
+        border-color: rgba(0, 0, 0, 0.69);
+      }
+
+      .vscode-dark table > thead > tr > th {
+        border-color: rgba(255, 255, 255, 0.69);
+      }
+
+      .vscode-light h1,
+      .vscode-light hr,
+      .vscode-light table > tbody > tr + tr > td {
+        border-color: rgba(0, 0, 0, 0.18);
+      }
+
+      .vscode-dark h1,
+      .vscode-dark hr,
+      .vscode-dark table > tbody > tr + tr > td {
+        border-color: rgba(255, 255, 255, 0.18);
+      }
+    </style>
+
+    <style>
+      /* Tomorrow Theme */
+      /* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+      /* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+      /* Tomorrow Comment */
+      .hljs-comment,
+      .hljs-quote {
+        color: #8e908c;
+      }
+
+      /* Tomorrow Red */
+      .hljs-variable,
+      .hljs-template-variable,
+      .hljs-tag,
+      .hljs-name,
+      .hljs-selector-id,
+      .hljs-selector-class,
+      .hljs-regexp,
+      .hljs-deletion {
+        color: #c82829;
+      }
+
+      /* Tomorrow Orange */
+      .hljs-number,
+      .hljs-built_in,
+      .hljs-builtin-name,
+      .hljs-literal,
+      .hljs-type,
+      .hljs-params,
+      .hljs-meta,
+      .hljs-link {
+        color: #f5871f;
+      }
+
+      /* Tomorrow Yellow */
+      .hljs-attribute {
+        color: #eab700;
+      }
+
+      /* Tomorrow Green */
+      .hljs-string,
+      .hljs-symbol,
+      .hljs-bullet,
+      .hljs-addition {
+        color: #718c00;
+      }
+
+      /* Tomorrow Blue */
+      .hljs-title,
+      .hljs-section {
+        color: #4271ae;
+      }
+
+      /* Tomorrow Purple */
+      .hljs-keyword,
+      .hljs-selector-tag {
+        color: #8959a8;
+      }
+
+      .hljs {
+        display: block;
+        overflow-x: auto;
+        color: #4d4d4c;
+        padding: 0.5em;
+        padding-top: 30px;
+      }
+
+      .hljs-emphasis {
+        font-style: italic;
+      }
+
+      .hljs-strong {
+        font-weight: bold;
+      }
+    </style>
+
+    <style>
+      /*
+ * Markdown PDF CSS
+ */
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI",
+          "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+        padding: 0 12px;
+        background-color: #181a1b; /* dark background */
+        color: #e0e0e0; /* light text */
+      }
+
+      pre {
+        background-color: #23272e; /* darker code block */
+        border: 1px solid #444c56;
+        border-radius: 3px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        color: #e0e0e0;
+      }
+
+      pre:not(.hljs) {
+        padding: 23px;
+        line-height: 19px;
+      }
+
+      blockquote {
+        background: rgba(127, 127, 127, 0.15);
+        border-color: #3a3f4b;
+        color: #b0b0b0;
+      }
+
+      .emoji {
+        height: 1.4em;
+      }
+
+      code {
+        font-size: 16px;
+        line-height: 19px;
+        background: #23272e;
+        color: #e0e0e0;
+        border-radius: 2px;
+        padding: 2px 4px;
+      }
+
+      /* for inline code */
+      :not(pre):not(.hljs) > code {
+        color: #f1c40f;
+        background: #23272e;
+      }
+
+      /* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+      .page {
+        page-break-after: always;
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+        background: #23272e;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #444c56;
+        border-radius: 4px;
+      }
+    </style>
+
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+  </head>
+  <body>
+    <script>
+      mermaid.initialize({
+        startOnLoad: true,
+        theme:
+          document.body.classList.contains("vscode-dark") ||
+          document.body.classList.contains("vscode-high-contrast")
+            ? "dark"
+            : "default",
+      });
+    </script>
+    <h1 id="til-supercharge-your-git-workflow-with-these-aliases">
+      Supercharge Your Git Workflow with Aliases
+    </h1>
+    <p>
+      I've been using these Git aliases to speed up my daily development
+      workflow, and I thought they might be helpful for you too!
+    </p>
+    <h2 id="1-gcswitch-stash-switch-and-optionally-pop-back">
+      1. <code>gcswitch</code>: Stash, Switch, and Optionally Pop Back
+    </h2>
+    <p>
+      This alias, <code>gcswitch</code>, makes switching between Git branches a
+      breeze, especially when you have uncommitted changes. It automatically
+      stashes your current work, switches to the specified branch (or the
+      previous one), and then attempts to pop the stashed changes.
+    </p>
+    <p><strong>How to add this alias:</strong></p>
+    <p>run the following command in terminal</p>
+    <pre
+      class="hljs"
+    ><code><div>git config --global alias.gcswitch <span class="hljs-string">'!f() { \
+  if [ -z "$1" ]; then \
+    echo "❌ Error: No branch name provided."; return 1; \
+  fi; \
+  echo "📦 Stashing changes..."; \
+  git stash -u; \
+  if [ "$1" = "-" ]; then \
+    echo "🔄 Switching to previous branch..."; \
+    git switch -; \
+  else \
+    if ! git rev-parse --verify "$1" &gt; /dev/null 2&gt;&amp;1; then \
+      echo "❌ Error: Branch '</span>\<span class="hljs-string">''</span><span class="hljs-variable">$1</span><span class="hljs-string">'\'</span><span class="hljs-string">' does not exist."; return 1; \
+    fi; \
+    current_branch=$(git rev-parse --abbrev-ref HEAD); \
+    if [ "$current_branch" = "$1" ]; then \
+      echo "⚠️ Already on branch '</span>\<span class="hljs-string">''</span><span class="hljs-variable">$1</span><span class="hljs-string">'\'</span><span class="hljs-string">'."; return 0; \
+    fi; \
+    echo "🚀 Switching to branch '</span>\<span class="hljs-string">''</span><span class="hljs-variable">$1</span><span class="hljs-string">'\'</span><span class="hljs-string">'..."; \
+    git switch "$1"; \
+  fi; \
+  if git stash list | grep -q "stash@{0}"; then \
+    echo "🎯 Applying stashed changes..."; \
+    git stash pop; \
+  else \
+    echo "ℹ️ No stash to pop."; \
+  fi; \
+}; f'</span>
+</div></code></pre>
+    <p><strong>How it works:</strong></p>
+    <ul>
+      <li>
+        It first checks if you've provided a branch name. If not, it throws an
+        error.
+      </li>
+      <li>
+        It then stashes any uncommitted changes using
+        <code>git stash -u</code> (which includes untracked files).
+      </li>
+      <li>
+        If you use <code>gcswitch -</code>, it switches back to the previous
+        branch you were on.
+      </li>
+      <li>
+        Otherwise, it verifies if the provided branch exists. If it doesn't, it
+        shows an error.
+      </li>
+      <li>
+        If the provided branch is the same as your current branch, it lets you
+        know and does nothing.
+      </li>
+      <li>Finally, it switches to the target branch.</li>
+      <li>
+        After switching, it checks if there's a stash entry (specifically the
+        most recent one, <code>stash@{0}</code>) and, if so, applies it using
+        <code>git stash pop</code>. If there's no stash, it informs you.
+      </li>
+    </ul>
+    <p><strong>Example Usage:</strong></p>
+    <pre
+      class="hljs"
+    ><code><div><span class="hljs-comment"># Switch to the 'development' branch, stashing current changes</span>
+git gcswitch development
+
+<span class="hljs-comment"># Switch back to the previous branch and try to apply stashed changes</span>
+git gcswitch -
+</div></code></pre>
+    <h2 id="2-smartadd-stage-all-except-specific-files">
+      2. <code>smartadd</code>: Stage All Except Specific Files
+    </h2>
+    <p>
+      This <code>smartadd</code> alias allows you to quickly stage all changes
+      in your repository while automatically excluding specific files.
+    </p>
+    <p><strong>How to add this alias:</strong></p>
+    <p>run the following command in terminal</p>
+    <pre
+      class="hljs"
+    ><code><div>git config alias.smartadd <span class="hljs-string">'!git add . &amp;&amp; git reset .vscode/settings.json apps/learner/src/app/app.tsx libs/utils/src/lib/config/config.ts yarn.lock'</span>
+</div></code></pre>
+    <p><strong>How it works:</strong></p>
+    <ul>
+      <li>
+        First, it runs <code>git add .</code> to stage all changes in your
+        working directory.
+      </li>
+      <li>
+        Immediately after, it uses <code>git reset</code> to unstage the
+        specified files: <code>.vscode/settings.json</code>,
+        <code>apps/learner/src/app/app.tsx</code>,
+        <code>libs/utils/src/lib/config/config.ts</code>, and
+        <code>yarn.lock</code>.
+      </li>
+    </ul>
+    <p><strong>Example Usage:</strong></p>
+    <pre
+      class="hljs"
+    ><code><div><span class="hljs-comment"># Stage all changes except the specified configuration and lock files</span>
+git smartadd
+</div></code></pre>
+    <h2 id="3-smartcommit-intelligent-commits-with-ticket-ids">
+      3. <code>smartcommit</code>: Intelligent Commits with Ticket IDs
+    </h2>
+    <p>
+      This alias, <code>smartcommit</code>, streamlines the commit process by
+      automatically including a ticket ID (if found in the branch name) in your
+      commit message and excluding specific files from the commit.
+    </p>
+    <p><strong>How to add this alias:</strong></p>
+    <p>run the following command in terminal</p>
+    <pre
+      class="hljs"
+    ><code><div>git config alias.smartcommit <span class="hljs-string">'!f() { \
+  git add . &amp;&amp; \
+  git reset .vscode/settings.json apps/learner/src/app/app.tsx libs/utils/src/lib/config/config.ts yarn.lock &amp;&amp; \
+  ticket=$(git rev-parse --abbrev-ref HEAD | grep -oE "[A-Z]+-[0-9]+") &amp;&amp; \
+  read -p "Commit message: " msg &amp;&amp; \
+  git commit -m "$ticket - $msg"; \
+}; f'</span>
+</div></code></pre>
+    <p><strong>How it works:</strong></p>
+    <ul>
+      <li>It first runs <code>git add .</code> to stage all changes.</li>
+      <li>
+        Then, it unstages the files: <code>.vscode/settings.json</code>,
+        <code>apps/learner/src/app/app.tsx</code>,
+        <code>libs/utils/src/lib/config/config.ts</code>, and
+        <code>yarn.lock</code> (just like <code>smartadd</code>).
+      </li>
+      <li>
+        It attempts to extract a ticket ID from your current branch name using a
+        regular expression (<code>[A-Z]+-[0-9]+</code>). This assumes your
+        branch names follow a pattern like <code>IRA-123</code> or
+        <code>GAP-456</code>.
+      </li>
+      <li>
+        Finally, it creates a commit with a message that starts with the
+        extracted ticket ID (if found) followed by the commit message you
+        provide.
+      </li>
+    </ul>
+    <p><strong>Example Usage:</strong></p>
+    <pre
+      class="hljs"
+    ><code><div><span class="hljs-comment"># Assuming your current branch is 'feature/IRA-789-test'</span>
+git smartcommit <span class="hljs-string">"Implement user authentication"</span>
+<span class="hljs-comment"># This will create a commit message like: "IRA-789 - Implement user authentication"</span>
+
+<span class="hljs-comment"># If no ticket ID is found in the branch name</span>
+git smartcommit <span class="hljs-string">"Fix minor UI issues"</span>
+<span class="hljs-comment"># This will create a commit message like: "Fix minor UI issues"</span>
+</div></code></pre>
+    <script>
+      // Add copy buttons to all code blocks
+      window.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("pre code").forEach(function (codeBlock) {
+          const button = document.createElement("button");
+          button.innerText = "Copy";
+          button.style.position = "absolute";
+          button.style.top = "3px";
+          button.style.right = "16px";
+          button.style.background = "#444c56";
+          button.style.color = "#e0e0e0";
+          button.style.border = "none";
+          button.style.padding = "4px 30px";
+          button.style.borderRadius = "4px";
+          button.style.cursor = "pointer";
+          button.style.fontSize = "14px";
+          button.style.zIndex = "10";
+
+          // Find the parent pre element
+          const pre = codeBlock.closest("pre");
+          if (pre) {
+            pre.style.position = "relative";
+            pre.appendChild(button);
+          }
+
+          button.addEventListener("click", function () {
+            // Remove line numbers if present (for hljs)
+            let text = codeBlock.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+              button.innerText = "Copied!";
+              setTimeout(() => (button.innerText = "Copy"), 1200);
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
