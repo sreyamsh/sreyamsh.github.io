@@ -22,35 +22,60 @@
           "Droid Sans",
           sans-serif
         );
-        font-size: var(--vscode-markdown-font-size, 18px);
+        /* font-size: var(--vscode-markdown-font-size, 18px); */
         padding: 0 26px;
-        line-height: var(--vscode-markdown-line-height, 22px);
+        /* line-height: var(--vscode-markdown-line-height, 22px); */
         word-wrap: break-word;
         background-color: #181a1b; /* dark background */
         color: #e0e0e0; /* light text */
-        max-width: 1280px;
+        max-width: min(90vw, 1280px);
         margin-inline: auto;
+        text-wrap: balance;
       }
 
-      #code-csp-warning {
-        position: fixed;
-        top: 0;
-        right: 0;
-        color: white;
-        margin: 16px;
-        text-align: center;
-        font-size: 16px;
-        font-family: sans-serif;
-        background-color: #444444;
-        cursor: pointer;
-        padding: 6px;
-        box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
+      body {
+        font-size: clamp(15px, 2.5vw, 18px);
+        padding-left: min(4vw, 26px);
+        padding-right: min(4vw, 26px);
+        line-height: 1.6;
       }
 
-      #code-csp-warning:hover {
-        text-decoration: none;
-        background-color: #007acc;
-        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+      h1,
+      h2,
+      h3 {
+        font-size: clamp(1.2em, 4vw, 2em);
+        margin-top: clamp(1.2em, 3vw, 2em);
+        margin-bottom: clamp(0.7em, 2vw, 1.2em);
+      }
+
+      p,
+      ul,
+      ol,
+      pre,
+      blockquote {
+        margin-top: clamp(0.8em, 2vw, 1.2em);
+        margin-bottom: clamp(0.8em, 2vw, 1.2em);
+      }
+
+      pre,
+      pre code {
+        font-size: clamp(13px, 3vw, 16px);
+        padding: clamp(10px, 3vw, 16px);
+        border-radius: 2px;
+        /* word-break: break-all; */
+        white-space: pre-wrap;
+      }
+
+      pre {
+        margin-left: calc(-1 * min(4vw, 26px));
+        margin-right: calc(-1 * min(4vw, 26px));
+        overflow-x: auto;
+        position: relative;
+      }
+
+      ul,
+      ol {
+        padding-left: clamp(1em, 4vw, 1.5em);
       }
 
       body.scrollBeyondLastLine {
@@ -263,6 +288,25 @@
       .vscode-dark hr,
       .vscode-dark table > tbody > tr + tr > td {
         border-color: rgba(255, 255, 255, 0.18);
+      }
+
+      pre button {
+        position: absolute;
+        top: clamp(4px, 1vw, 8px);
+        /* right: clamp(8px, 2vw, 16px); */
+        right: calc(16px + 0.5em);
+        font-size: clamp(12px, 2vw, 14px);
+        padding: 8px 30px;
+        background: #444c56;
+        color: #e0e0e0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        z-index: 10;
+        transition: background 0.2s;
+      }
+      pre button:hover {
+        background: #586069;
       }
     </style>
 
@@ -602,17 +646,6 @@ git smartcommit <span class="hljs-string">"Fix minor UI issues"</span>
         document.querySelectorAll("pre code").forEach(function (codeBlock) {
           const button = document.createElement("button");
           button.innerText = "Copy";
-          button.style.position = "absolute";
-          button.style.top = "3px";
-          button.style.right = "16px";
-          button.style.background = "#444c56";
-          button.style.color = "#e0e0e0";
-          button.style.border = "none";
-          button.style.padding = "4px 30px";
-          button.style.borderRadius = "4px";
-          button.style.cursor = "pointer";
-          button.style.fontSize = "14px";
-          button.style.zIndex = "10";
 
           // Find the parent pre element
           const pre = codeBlock.closest("pre");
