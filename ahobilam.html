@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rayalaseema Road Trip Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.1/plotly.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f5f5f0; /* Warm neutral background */
+        color: #2d2d2a;
+      }
+
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 300px;
+        max-height: 400px;
+      }
+
+      @media (min-width: 768px) {
+        .chart-container {
+          height: 350px;
+        }
+      }
+
+      /* Custom Scrollbar for side panels if needed */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #e5e5e0;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #a8a29e;
+        border-radius: 4px;
+      }
+
+      .tab-active {
+        border-bottom: 3px solid #d97706; /* Amber-600 */
+        color: #d97706;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <!-- Chosen Palette: Warm Neutrals (Stone/Sand) with Amber/Ochre Accents and Deep Slate Text -->
+    <!-- Application Structure Plan: 
+         1. Header: Trip Summary & Hero Stats.
+         2. Main Layout (Grid): 
+            - Left/Top: Interactive Itinerary (Day-wise tabs).
+            - Right/Bottom: Visualizations (Route Map & Activity Charts).
+         3. Detailed Sections: Destination cards with specific tips.
+         4. Logistics: Packing list and travel tips.
+         Reasoning: This structure separates the "What to do" (Itinerary) from the "Where to go" (Visuals) while keeping everything accessible. 
+    -->
+    <!-- Visualization & Content Choices:
+         - Route Map: Plotly Scatter Plot. Goal: Visualize the loop. Logic: Nodes represent cities, lines represent roads.
+         - Activity Level: Chart.js Bar Chart. Goal: Prepare user for trekking intensity.
+         - Distance Breakdown: Chart.js Doughnut. Goal: Show driving distribution.
+         - Interaction: Tabs for days, Hover for chart details, Checkboxes for packing.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Navigation / Header -->
+    <header class="bg-stone-900 text-stone-50 shadow-lg sticky top-0 z-50">
+      <div
+        class="container mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        <div>
+          <h1
+            class="text-xl md:text-2xl font-bold tracking-tight text-amber-500"
+          >
+            Rayalaseema Odyssey
+          </h1>
+          <p class="text-xs md:text-sm text-stone-400">
+            Hyderabad &rarr; Ahobilam &rarr; Gandikota &rarr; Hyderabad
+          </p>
+        </div>
+        <div class="hidden md:flex space-x-6 text-sm font-medium">
+          <button
+            onclick="scrollToSection('itinerary')"
+            class="hover:text-amber-400 transition"
+          >
+            Itinerary
+          </button>
+          <button
+            onclick="scrollToSection('map-view')"
+            class="hover:text-amber-400 transition"
+          >
+            Route Map
+          </button>
+          <button
+            onclick="scrollToSection('destinations')"
+            class="hover:text-amber-400 transition"
+          >
+            Destinations
+          </button>
+          <button
+            onclick="scrollToSection('logistics')"
+            class="hover:text-amber-400 transition"
+          >
+            Logistics
+          </button>
+        </div>
+        <!-- Mobile Menu Button (Functional via JS below) -->
+        <button
+          id="mobile-menu-btn"
+          class="md:hidden text-amber-500 focus:outline-none"
+        >
+          <span class="text-2xl">&#9776;</span>
+        </button>
+      </div>
+      <!-- Mobile Menu Dropdown -->
+      <div id="mobile-menu" class="hidden bg-stone-800 md:hidden pb-4 px-4">
+        <button
+          onclick="scrollToSection('itinerary')"
+          class="block py-2 text-sm text-stone-300 hover:text-white w-full text-left"
+        >
+          Itinerary
+        </button>
+        <button
+          onclick="scrollToSection('map-view')"
+          class="block py-2 text-sm text-stone-300 hover:text-white w-full text-left"
+        >
+          Route Map
+        </button>
+        <button
+          onclick="scrollToSection('destinations')"
+          class="block py-2 text-sm text-stone-300 hover:text-white w-full text-left"
+        >
+          Destinations
+        </button>
+      </div>
+    </header>
+
+    <!-- Intro Section -->
+    <section class="bg-white border-b border-stone-200">
+      <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto text-center">
+          <h2 class="text-3xl font-bold text-stone-800 mb-4">
+            Your 3-Day Pilgrimage & Adventure
+          </h2>
+          <p class="text-stone-600 leading-relaxed mb-6">
+            This interactive guide plans your journey from the hustle of
+            Hyderabad to the serene Nallamala forests and the grandeur of the
+            Erramala hills. You will cover approximately
+            <strong>850 km</strong>, trek through the holy hills of
+            <strong>Ahobilam</strong>, witness the crystal pools of
+            <strong>Mahanandi</strong>, marvel at the
+            <strong>Yaganti</strong> idol, and watch the sunrise over the Grand
+            Canyon of India at <strong>Gandikota</strong>.
+          </p>
+          <div class="flex flex-wrap justify-center gap-4">
+            <div
+              class="bg-amber-50 px-4 py-2 rounded-lg border border-amber-200"
+            >
+              <span class="block text-2xl font-bold text-amber-600">3</span>
+              <span class="text-xs text-stone-500 uppercase font-semibold"
+                >Days</span
+              >
+            </div>
+            <div
+              class="bg-amber-50 px-4 py-2 rounded-lg border border-amber-200"
+            >
+              <span class="block text-2xl font-bold text-amber-600">5+</span>
+              <span class="text-xs text-stone-500 uppercase font-semibold"
+                >Major Sites</span
+              >
+            </div>
+            <div
+              class="bg-amber-50 px-4 py-2 rounded-lg border border-amber-200"
+            >
+              <span class="block text-2xl font-bold text-amber-600">High</span>
+              <span class="text-xs text-stone-500 uppercase font-semibold"
+                >Activity</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <main
+      class="flex-grow container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8"
+    >
+      <!-- Left Column: Itinerary (Span 7) -->
+      <div class="lg:col-span-7 space-y-8" id="itinerary">
+        <!-- Itinerary Header -->
+        <div>
+          <h3
+            class="text-2xl font-bold text-stone-800 border-l-4 border-amber-500 pl-3"
+          >
+            Day-wise Plan
+          </h3>
+          <p class="mt-2 text-stone-500 text-sm">
+            Click the tabs below to view detailed schedules for each day.
+          </p>
+        </div>
+
+        <!-- Tabs Container -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden"
+        >
+          <div class="flex border-b border-stone-200 overflow-x-auto">
+            <button
+              onclick="switchTab('wed')"
+              id="tab-wed"
+              class="px-6 py-4 text-sm font-medium text-stone-500 hover:bg-stone-50 whitespace-nowrap transition"
+            >
+              Wed Evening
+            </button>
+            <button
+              onclick="switchTab('thu')"
+              id="tab-thu"
+              class="px-6 py-4 text-sm font-medium text-stone-500 hover:bg-stone-50 whitespace-nowrap transition tab-active"
+            >
+              Thu: Ahobilam
+            </button>
+            <button
+              onclick="switchTab('fri')"
+              id="tab-fri"
+              class="px-6 py-4 text-sm font-medium text-stone-500 hover:bg-stone-50 whitespace-nowrap transition"
+            >
+              Fri: Temple Run
+            </button>
+            <button
+              onclick="switchTab('sat')"
+              id="tab-sat"
+              class="px-6 py-4 text-sm font-medium text-stone-500 hover:bg-stone-50 whitespace-nowrap transition"
+            >
+              Sat: Canyons & Caves
+            </button>
+          </div>
+
+          <!-- Tab Content: Wednesday -->
+          <div id="content-wed" class="p-6 hidden">
+            <div class="space-y-6">
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >17:00</span
+                  >
+                  <span class="text-xs text-stone-400">START</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Depart Hyderabad</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Start early to beat traffic. Take the NH44 (Bangalore
+                    Highway) until Kurnool.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >20:30</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Dinner at Kurnool</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Stop at food courts near Kurnool. From here, divert towards
+                    Nandyal/Allagadda.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >23:30</span
+                  >
+                  <span class="text-xs text-stone-400">END</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">
+                    Reach Ahobilam / Allagadda
+                  </h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Check into Haritha Resort (Ahobilam) or a hotel in Allagadda
+                    (better amenities). Rest for the trek tomorrow.
+                  </p>
+                  <div
+                    class="mt-2 inline-block bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded"
+                  >
+                    Drive: ~350 km
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Content: Thursday -->
+          <div id="content-thu" class="p-6 block">
+            <div class="space-y-6">
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >06:00</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Lower Ahobilam</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Visit the main Prahlada Varada Swamy temple first. It's
+                    usually less crowded early in the morning.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >08:00</span
+                  >
+                  <span class="text-xs text-stone-400">TREK</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Upper Ahobilam Trek</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Drive to Upper Ahobilam. Visit
+                    <strong>Ahobila Narasimha</strong> (Main Upper Temple). From
+                    there, trek to <strong>Kroda</strong> (Varaha) and
+                    <strong>Jwala Narasimha</strong> (Spot of anger). The path
+                    to Jwala is scenic but steep.
+                  </p>
+                  <div
+                    class="mt-2 bg-red-50 text-red-700 text-xs p-2 rounded border border-red-100"
+                  >
+                    <strong>Note:</strong> Visit
+                    <strong>Ugra Stambham</strong> only if you are fit; it's a
+                    difficult vertical climb.
+                  </div>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >13:00</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Lunch & Rest</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Simple vegetarian meals available at the Arya Vysya Anna
+                    Satram or local canteens.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >15:00</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Pavana & Bhargava</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Hire a local jeep to visit Pavana Narasimha (deep forest,
+                    bumpy ride). On return, visit Bhargava Narasimha near a
+                    small lake.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >19:00</span
+                  >
+                  <span class="text-xs text-stone-400">DECIDE</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2 w-full">
+                  <h4 class="font-bold text-stone-800 mb-3">
+                    Night Stay Choices
+                  </h4>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Option A: Nandyal -->
+                    <div
+                      class="bg-stone-50 p-4 rounded-lg border border-stone-200"
+                    >
+                      <div class="flex justify-between items-center mb-2">
+                        <span
+                          class="text-xs font-bold text-stone-500 uppercase tracking-wide"
+                          >Option A</span
+                        >
+                        <span class="text-sm font-bold text-stone-800"
+                          >Nandyal City</span
+                        >
+                      </div>
+                      <p class="text-xs text-stone-600 mb-2">
+                        Drive ~60km from Ahobilam.
+                      </p>
+                      <ul
+                        class="text-xs text-stone-500 space-y-1 list-disc list-inside"
+                      >
+                        <li>
+                          <strong>Pro:</strong> Better hotels (AC/Hot water),
+                          good restaurants.
+                        </li>
+                        <li>
+                          <strong>Con:</strong> 30 min drive to Mahanandi temple
+                          in morning.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <!-- Option B: Mahanandi -->
+                    <div
+                      class="bg-teal-50 p-4 rounded-lg border border-teal-200"
+                    >
+                      <div class="flex justify-between items-center mb-2">
+                        <span
+                          class="text-xs font-bold text-teal-600 uppercase tracking-wide"
+                          >Option B</span
+                        >
+                        <span class="text-sm font-bold text-teal-900"
+                          >Mahanandi Temple</span
+                        >
+                      </div>
+                      <p class="text-xs text-teal-800 mb-2">
+                        Drive ~75km from Ahobilam.
+                      </p>
+                      <ul
+                        class="text-xs text-teal-700 space-y-1 list-disc list-inside"
+                      >
+                        <li>
+                          <strong>Pro:</strong> Stay at Haritha cottages right
+                          at temple. Early morning dip is magical.
+                        </li>
+                        <li>
+                          <strong>Con:</strong> Very basic amenities, limited
+                          food options.
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Content: Friday -->
+          <div id="content-fri" class="p-6 hidden">
+            <div class="space-y-6">
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >07:00</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Mahanandi Temple</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Drive to Mahanandi (from Nandyal it's very close). Swim in
+                    the <strong>Pushkarini</strong> (temple tank) where water is
+                    crystal clear and warm irrespective of season. Darshan of
+                    Lord Shiva.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >11:00</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">
+                    Yaganti Uma Maheshwara
+                  </h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Drive to Yaganti (approx 60km). Famous for the
+                    <strong>Growing Nandi</strong>. Explore the caves (Agastya
+                    Cave, Venkateswara Cave) by climbing the steep steps.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >14:00</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Banaganapalle</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Quick stop at Banaganapalle fort or Nawab's bungalow if
+                    interested. Have lunch here.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >17:00</span
+                  >
+                  <span class="text-xs text-stone-400">VIEW</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Drive to Gandikota</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Drive to Gandikota (approx 1.5 - 2 hrs). If you reach by
+                    sunset, head straight to the Penna river gorge view point.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >20:00</span
+                  >
+                  <span class="text-xs text-stone-400">CAMP</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Stay at Gandikota</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Stay at Haritha Resort (book in advance) or try tent camping
+                    near the gorge organized by locals. Enjoy the starry night.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Content: Saturday -->
+          <div id="content-sat" class="p-6 hidden">
+            <div class="space-y-6">
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >06:00</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Gandikota Sunrise</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Watch the sun rise over the canyon. It is the best time for
+                    photography. Explore the Fort, Granary, and Ranganatha Swamy
+                    Temple ruins.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >11:00</span
+                  >
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Belum Caves</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Drive to Belum Caves (approx 60km). These are the second
+                    longest caves in India. Explore the underground passages,
+                    Meditation Hall, and Patalaganga.
+                  </p>
+                  <div
+                    class="mt-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded"
+                  >
+                    Tip: It gets humid inside, carry water.
+                  </div>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >14:00</span
+                  >
+                  <span class="text-xs text-stone-400">DRIVE</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Drive to Alampur</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Depart Belum. Drive towards Kurnool to reach Alampur (approx
+                    140km / 3 hrs). Have lunch en route.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >17:00</span
+                  >
+                  <span class="text-xs text-stone-400">VISIT</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Alampur Jogulamba</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Visit the <strong>Jogulamba Temple</strong> (Shakti Peetham)
+                    and the 7th-century <strong>Navabrahma Temples</strong>. The
+                    architecture here is Chalukyan and unique.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 w-16 text-center">
+                  <span class="block text-lg font-bold text-stone-700"
+                    >21:30</span
+                  >
+                  <span class="text-xs text-stone-400">HOME</span>
+                </div>
+                <div class="border-l-2 border-stone-200 pl-6 pb-2">
+                  <h4 class="font-bold text-stone-800">Reach Hyderabad</h4>
+                  <p class="text-stone-600 text-sm mt-1">
+                    Drive back to Hyderabad via NH44 (approx 215km). Reach home
+                    by night.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Destinations Grid -->
+        <div id="destinations" class="pt-8">
+          <h3
+            class="text-2xl font-bold text-stone-800 border-l-4 border-amber-500 pl-3 mb-6"
+          >
+            Explore the Destinations
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Ahobilam Card -->
+            <div
+              class="bg-white rounded-xl shadow-sm border border-stone-200 p-5 hover:shadow-md transition"
+            >
+              <div class="flex justify-between items-start">
+                <h4 class="text-lg font-bold text-stone-800">Ahobilam</h4>
+                <span
+                  class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded"
+                  >Pilgrimage + Trek</span
+                >
+              </div>
+              <p class="text-sm text-stone-600 mt-2">
+                The only place where all 9 forms of Narasimha are worshipped.
+                Split into Upper (Eguva) and Lower (Diguva) Ahobilam.
+              </p>
+              <div class="mt-3 text-xs text-stone-500">
+                <strong>Must See:</strong> Jwala Narasimha, Ugra Stambham.<br />
+                <strong>Vibe:</strong> Forest, Divine, Strenuous.
+              </div>
+            </div>
+
+            <!-- Mahanandi Card -->
+            <div
+              class="bg-white rounded-xl shadow-sm border border-stone-200 p-5 hover:shadow-md transition"
+            >
+              <div class="flex justify-between items-start">
+                <h4 class="text-lg font-bold text-stone-800">Mahanandi</h4>
+                <span
+                  class="bg-teal-100 text-teal-800 text-xs font-bold px-2 py-1 rounded"
+                  >Relaxation</span
+                >
+              </div>
+              <p class="text-sm text-stone-600 mt-2">
+                Ancient Shiva temple famous for its fresh water pools. The water
+                source is unknown and remains constant.
+              </p>
+              <div class="mt-3 text-xs text-stone-500">
+                <strong>Must See:</strong> The main tank (Pushkarini).<br />
+                <strong>Vibe:</strong> Peaceful, Lush Greenery.
+              </div>
+            </div>
+
+            <!-- Yaganti Card -->
+            <div
+              class="bg-white rounded-xl shadow-sm border border-stone-200 p-5 hover:shadow-md transition"
+            >
+              <div class="flex justify-between items-start">
+                <h4 class="text-lg font-bold text-stone-800">Yaganti</h4>
+                <span
+                  class="bg-stone-100 text-stone-800 text-xs font-bold px-2 py-1 rounded"
+                  >History</span
+                >
+              </div>
+              <p class="text-sm text-stone-600 mt-2">
+                Famous for the Nandi idol that locals believe is growing in
+                size. Surrounded by magnificent caves.
+              </p>
+              <div class="mt-3 text-xs text-stone-500">
+                <strong>Must See:</strong> Agastya Cave, Pushkarini.<br />
+                <strong>Vibe:</strong> Rocky, Mystical.
+              </div>
+            </div>
+
+            <!-- Gandikota Card -->
+            <div
+              class="bg-white rounded-xl shadow-sm border border-stone-200 p-5 hover:shadow-md transition"
+            >
+              <div class="flex justify-between items-start">
+                <h4 class="text-lg font-bold text-stone-800">Gandikota</h4>
+                <span
+                  class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded"
+                  >Nature</span
+                >
+              </div>
+              <p class="text-sm text-stone-600 mt-2">
+                Known as the Grand Canyon of India. A massive gorge formed by
+                river Pennar cutting through Erramala hills.
+              </p>
+              <div class="mt-3 text-xs text-stone-500">
+                <strong>Must See:</strong> Sunset/Sunrise Point, Fort Ruins.<br />
+                <strong>Vibe:</strong> Epic, Windy, Photogenic.
+              </div>
+            </div>
+
+            <!-- Alampur Card (New) -->
+            <div
+              class="bg-white rounded-xl shadow-sm border border-stone-200 p-5 hover:shadow-md transition md:col-span-2 lg:col-span-2"
+            >
+              <div class="flex justify-between items-start">
+                <h4 class="text-lg font-bold text-stone-800">Alampur</h4>
+                <span
+                  class="bg-rose-100 text-rose-800 text-xs font-bold px-2 py-1 rounded"
+                  >Heritage</span
+                >
+              </div>
+              <p class="text-sm text-stone-600 mt-2">
+                Meeting point of Tungabhadra and Krishna rivers. Home to the 5th
+                Shakti Peetham.
+              </p>
+              <div class="mt-3 text-xs text-stone-500">
+                <strong>Must See:</strong> Jogulamba Temple, Navabrahma
+                Temples.<br />
+                <strong>Vibe:</strong> Ancient, Spiritual.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logistics List -->
+        <div id="logistics" class="bg-stone-100 rounded-xl p-6 mt-8">
+          <h3 class="text-xl font-bold text-stone-800 mb-4">Trip Logistics</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <h4 class="font-semibold text-stone-700 mb-2">
+                Essential Packing
+              </h4>
+              <ul class="text-sm text-stone-600 space-y-2">
+                <li class="flex items-center">
+                  <input type="checkbox" class="mr-2" /> Good trekking shoes
+                  (Ahobilam)
+                </li>
+                <li class="flex items-center">
+                  <input type="checkbox" class="mr-2" /> Traditional wear
+                  (Temples)
+                </li>
+                <li class="flex items-center">
+                  <input type="checkbox" class="mr-2" /> Cash (Network is poor)
+                </li>
+                <li class="flex items-center">
+                  <input type="checkbox" class="mr-2" /> Sunscreen & Hat
+                  (Gandikota)
+                </li>
+                <li class="flex items-center">
+                  <input type="checkbox" class="mr-2" /> Torch/Headlamp (Caves)
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-semibold text-stone-700 mb-2">Road Conditions</h4>
+              <p class="text-xs text-stone-500 mb-2">
+                Hyd to Kurnool: Excellent (NH44)
+              </p>
+              <p class="text-xs text-stone-500 mb-2">
+                Kurnool to Nandyal: Good (4-lane)
+              </p>
+              <p class="text-xs text-stone-500 mb-2">
+                Ahobilam Internal: Narrow/Bumpy
+              </p>
+              <p class="text-xs text-stone-500">
+                Gandikota to Hyd: Decent 2-lane then NH44
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Visualizations (Span 5) -->
+      <div class="lg:col-span-5 space-y-8" id="visuals">
+        <!-- Intro for Charts -->
+        <div>
+          <h3
+            class="text-2xl font-bold text-stone-800 border-l-4 border-amber-500 pl-3"
+          >
+            Trip Analytics
+          </h3>
+          <p class="mt-2 text-stone-500 text-sm">
+            Visualizing your route and effort levels.
+          </p>
+        </div>
+
+        <!-- Route Map Visualization -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-200">
+          <h4 class="font-bold text-stone-700 mb-2">Schematic Route Map</h4>
+          <div
+            id="map-view"
+            class="chart-container"
+            style="height: 400px"
+          ></div>
+          <p class="text-xs text-stone-400 mt-2 text-center">
+            Interactive Schematic: Hover points for details. Not to scale.
+          </p>
+        </div>
+
+        <!-- Activity Chart -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-200">
+          <h4 class="font-bold text-stone-700 mb-2">
+            Physical Intensity by Day
+          </h4>
+          <div class="chart-container h-64">
+            <canvas id="activityChart"></canvas>
+          </div>
+          <p class="text-xs text-stone-400 mt-2 text-center">
+            Ahobilam involves significant trekking.
+          </p>
+        </div>
+
+        <!-- Distance Chart -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-200">
+          <h4 class="font-bold text-stone-700 mb-2">
+            Driving Distance Distribution
+          </h4>
+          <div class="chart-container h-48">
+            <canvas id="distanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-stone-900 text-stone-400 py-6 mt-8">
+      <div class="container mx-auto px-4 text-center text-sm">
+        <p>&copy; 2025 Rayalaseema Trip Planner. Safe Travels!</p>
+      </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+      // --- State Management ---
+      const state = {
+        currentTab: "thu", // Default to first full day
+      };
+
+      // --- Navigation Logic ---
+      function switchTab(day) {
+        // Update State
+        state.currentTab = day;
+
+        // Update UI Buttons
+        const days = ["wed", "thu", "fri", "sat"];
+        days.forEach((d) => {
+          const btn = document.getElementById(`tab-${d}`);
+          const content = document.getElementById(`content-${d}`);
+          if (d === day) {
+            btn.classList.add("tab-active");
+            content.classList.remove("hidden");
+            content.classList.add("block");
+          } else {
+            btn.classList.remove("tab-active");
+            content.classList.add("hidden");
+            content.classList.remove("block");
+          }
+        });
+      }
+
+      function scrollToSection(id) {
+        document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+        document.getElementById("mobile-menu").classList.add("hidden");
+      }
+
+      // Mobile Menu Toggle
+      document
+        .getElementById("mobile-menu-btn")
+        .addEventListener("click", () => {
+          const menu = document.getElementById("mobile-menu");
+          menu.classList.toggle("hidden");
+        });
+
+      // --- Visualization: Route Map (Plotly) ---
+      // Simulating lat/long relative coordinates for the route
+      const locations = [
+        { name: "Hyderabad", x: 0, y: 10, type: "Start/End" },
+        { name: "Kurnool", x: 0, y: 7, type: "Transit" },
+        { name: "Nandyal", x: 1, y: 5.5, type: "Stay" },
+        { name: "Mahanandi", x: 2, y: 5.5, type: "Temple" },
+        { name: "Ahobilam", x: 2.5, y: 4.5, type: "Main" },
+        { name: "Yaganti", x: 1, y: 4, type: "Temple" },
+        { name: "Belum Caves", x: 0, y: 3, type: "Cave" },
+        { name: "Gandikota", x: 0.5, y: 1.5, type: "View" },
+        { name: "Alampur", x: 0.2, y: 6.8, type: "Temple" },
+      ];
+
+      // Creating the path line (Hyd -> Kurnool -> Nandyal -> Ahobilam -> Mahanandi -> Yaganti -> Gandikota -> Belum -> Alampur -> Hyd)
+      // Simplified loop logic for visual clarity
+      const pathX = [0, 0, 1, 2.5, 2, 1, 0.5, 0, 0.2, 0];
+      const pathY = [10, 7, 5.5, 4.5, 5.5, 4, 1.5, 3, 6.8, 10]; // Returning to Hyd (0,10) via Alampur
+
+      const traceNodes = {
+        x: locations.map((l) => l.x),
+        y: locations.map((l) => l.y),
+        mode: "markers+text",
+        type: "scatter",
+        text: locations.map((l) => l.name),
+        textposition: "top center",
+        marker: { size: 12, color: "#d97706" }, // Amber color
+        hoverinfo: "text",
+        name: "Locations",
+      };
+
+      const tracePath = {
+        x: pathX,
+        y: pathY,
+        mode: "lines",
+        line: { color: "#78716c", width: 2, dash: "dot" }, // Stone color
+        hoverinfo: "none",
+        name: "Route",
+      };
+
+      const layoutMap = {
+        showlegend: false,
+        xaxis: {
+          showgrid: false,
+          zeroline: false,
+          showticklabels: false,
+          range: [-1, 3.5],
+        },
+        yaxis: {
+          showgrid: false,
+          zeroline: false,
+          showticklabels: false,
+          range: [0, 11],
+        },
+        margin: { t: 20, b: 20, l: 20, r: 20 },
+        hovermode: "closest",
+        dragmode: false,
+        plot_bgcolor: "#fafaf9", // Stone-50
+        paper_bgcolor: "#ffffff",
+      };
+
+      Plotly.newPlot("map-view", [tracePath, traceNodes], layoutMap, {
+        displayModeBar: false,
+        responsive: true,
+      });
+
+      // --- Visualization: Activity Chart (Chart.js) ---
+      const ctxActivity = document
+        .getElementById("activityChart")
+        .getContext("2d");
+      new Chart(ctxActivity, {
+        type: "bar",
+        data: {
+          labels: [
+            "Thu (Ahobilam)",
+            "Fri (Mahanandi/Yaganti)",
+            "Sat (Gandikota/Belum)",
+          ],
+          datasets: [
+            {
+              label: "Physical Intensity (1-10)",
+              data: [9, 5, 7], // Ahobilam is very hard trekking, Fri is easy walking, Sat is moderate
+              backgroundColor: ["#d97706", "#14b8a6", "#f43f5e"], // Amber, Teal, Rose
+              borderRadius: 4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 10, display: false },
+            x: { grid: { display: false } },
+          },
+          plugins: {
+            legend: { display: false },
+          },
+        },
+      });
+
+      // --- Visualization: Distance Chart (Chart.js) ---
+      const ctxDistance = document
+        .getElementById("distanceChart")
+        .getContext("2d");
+      new Chart(ctxDistance, {
+        type: "doughnut",
+        data: {
+          labels: ["Hyd to Ahobilam", "Inter-District Travel", "Return to Hyd"],
+          datasets: [
+            {
+              data: [350, 180, 320],
+              backgroundColor: ["#78716c", "#d97706", "#44403c"],
+              borderWidth: 0,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "right",
+              labels: { boxWidth: 12, font: { size: 10 } },
+            },
+          },
+        },
+      });
+
+      // Initialize with default tab active (already set in HTML but good for robustness)
+      switchTab("thu");
+    </script>
+  </body>
+</html>
